@@ -1,0 +1,33 @@
+#!/bin/sh
+#info: Configure and enable SSHD, requires Cygwin. Run this inside Windows XP
+# based on: https://cygwin.com/pipermail/cygwin/2006-June/147909.html
+# https://web.archive.org/web/20060603194000/http://pigtail.net/LRP/printsrv/cygwin-sshd.html
+
+echo "# Go to cygwin root"
+cd / || exit 1
+echo "Current dir: $(pwd)"
+
+echo "# Add cygwin to environment PATH"
+REG_ENV="\HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Session Manager\Environment"
+regtool set "$REG_ENV\Path" "%SystemRoot%\system32;%SystemRoot%;%SystemRoot%\System32\Wbem;C:\cygwin\bin" || exit 1
+
+echo "# Use UNIX-like permission structure"
+# info: https://web.archive.org/web/20060702075256/http://pigtail.net/LRP/printsrv/ntsec.html
+regtool set "$REG_ENV\CYGWIN" "ntsec" || exit 1
+
+echo "# Import Windows users to cygwin"
+mkpasswd --local >/etc/passwd || exit 1
+mkgroup --local >/etc/group || exit 1
+
+echo "# Configure and enable SSHD"
+cygrunsrv --stop sshd 2>/dev/null
+cygrunsrv --remove sshd 2>/dev/null
+ssh-host-config -y || exit 1
+cygrunsrv --start sshd || exit 1
+
+echo "# Open port 22"
+netsh firewall add portopening TCP 22 "TCP Port 22"
+
+echo "# Clean up logs"
+echo "" >/var/log/lastlog
+echo "" >/var/log/sshd.log
