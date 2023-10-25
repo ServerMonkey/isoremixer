@@ -29,10 +29,15 @@ under ~.local/share/wineprefixes/
 
 ## OPTIONS
 
-* `-h`, `--help` :
-  Displays the help screen.
-* `--only-cygwin` :
-  Only start Cygwin.
+* `-h`, `--help` :  Displays the help screen
+* `r` :  Use Cygwin fastpkg repacks instead of Cygwin mirror. Use this option
+  when you want to use a specific collection of Cygwing packages. Useful when
+  you are in an offline environment. Also, faster than downloading from a
+  mirror.
+* `s` :  Skip fastpkg downloads. Only use this if you are sure that you have
+  all required files in the fastpkg downloads folder.
+* `c` :  Only start Cygwin-setup. Only for debugging purposes. Then exit.
+* `e` :  Erase everything including VM, disks and Wine prefix. Use for cleanup.
 
 * `<OS>` :
   Select an OS version, Se below for availabe OS:es.
@@ -40,6 +45,8 @@ under ~.local/share/wineprefixes/
 ## OS ARGUMENT
 
 * `xp` : Windows XP (any version) via Nlite
+* `7` : Windows 7 x64 via NTLite and libvirt - UNDER DEVELOPMENT!!!
+* `7-x86` : Windows 7 x86 via NTLite and libvirt - UNDER DEVELOPMENT!!!
 
 ## EXAMPLES
 
@@ -62,6 +69,13 @@ If not, isoremixer will copy recommended/default preset and script files from:
 
 * `xp` : `"~/.isoremixer/presets/setup_cygwin*"` Each script file must start
   with `"setup_cygwin..."`
+
+### Mirrors
+
+For older versions of Cygwin look at:    
+[www.crouchingtigerhiddenfruitbat.org/cygwin/timemachine.html](http://www.crouchingtigerhiddenfruitbat.org/cygwin/timemachine.html)  
+[cygwin.com/setup/](https://cygwin.com/setup/)  
+[ctm.crouchingtigerhiddenfruitbat.org/pub/cygwin/circa/](http://ctm.crouchingtigerhiddenfruitbat.org/pub/cygwin/circa/)
 
 ## COPYRIGHT
 

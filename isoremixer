@@ -29,9 +29,9 @@ NOCOL=$(tput sgr0)
 
 error() {
     if [ -n "$1" ]; then
-        echo "${RED}Error, aborting:${NOCOL} $1"
+        echo "${RED}Error, aborting:${NOCOL} $1" >&2
     else
-        echo "${RED}Error, aborting${NOCOL}"
+        echo "${RED}Error, aborting${NOCOL}" >&2
     fi
     exit 1
 }
@@ -47,7 +47,7 @@ require_app() {
 }
 
 get_file() {
-    fastpkg -p "$1" show -d || error "fastpkg"
+    fastpkg -p "$1" show -d || error "fastpkg -p $1 show -d"
 }
 
 ### VARIABLES #################################################################
@@ -56,16 +56,55 @@ case $OS_TARGET in
 xp)
     WINE_WINVER="winxp"
     ARCH="x86"
-    PKG_CYGWIN="cygwin_2.874"
+    PKG_CYGWIN="cygwin_2.874.x32"
     PKG_BUILDER="nlite"
     PKG_ISO="windows-xp-pro"
-    PKG_DRV_A="virtio-drivers-windows"
+    PKG_VIRTIO_ISO="virtio-drivers-windows"
     PKG_DRV_B="intel-e1000-driver"
+    PKG_WINFSP=""
     CYGWIN_PKGS="python,openssh,bzip2,p7zip,unzip,xz,zip,nano,curl,wget"
     ARCHIVE_URL="http://ctm.crouchingtigerhiddenfruitbat.org"
     ARCHIVE_PATH="/pub/cygwin/circa/2016/08/30/104223"
-    SUBDIR_BUILDER="Program Files/nLite"
-    BIN_BUILDER="nLite.exe"
+    CYGWIN_REPACK="cygwin-packages-repack-winxp"
+    BUILDER_SUBDIR="Program Files/nLite"
+    BUILDER_BIN="nLite.exe"
+    BUILD_SYSTEM="wine"
+    ;;
+7)
+    WINE_WINVER="win10"
+    ARCH="x64"
+    PKG_CYGWIN="cygwin_2.927"
+    PKG_BUILDER="ntlite"
+    PKG_ISO="windows-7-ultimate"
+    PKG_VIRTIO_ISO="virtio-drivers-windows"
+    PKG_DRV_B=""
+    PKG_WINFSP="winfsp"
+    CYGWIN_PKGS="python,openssh,bzip2,p7zip,unzip,xz,zip,nano,curl,wget"
+    ARCHIVE_URL="https://ftp.acc.umu.se"
+    ARCHIVE_PATH="/mirror/cygwin/"
+    CYGWIN_REPACK="cygwin-packages-repack-win7"
+    BUILDER_SUBDIR="Program Files/NTLite"
+    BUILDER_BIN="NTLite.exe"
+    BUILD_SYSTEM="libvirt"
+    BUILD_IMAGE="libvirt-img-windows-server-2012-cloudbase"
+    ;;
+7-x32)
+    WINE_WINVER="win10"
+    ARCH="x86"
+    PKG_CYGWIN="cygwin_2.923.x32"
+    PKG_BUILDER="ntlite"
+    PKG_ISO="windows-7-ultimate"
+    PKG_VIRTIO_ISO="virtio-drivers-windows"
+    PKG_DRV_B=""
+    PKG_WINFSP="winfsp"
+    CYGWIN_PKGS="python,openssh,bzip2,p7zip,unzip,xz,zip,nano,curl,wget"
+    ARCHIVE_URL="http://ctm.crouchingtigerhiddenfruitbat.org"
+    ARCHIVE_PATH="/pub/cygwin/circa/2022/11/23/063457"
+    CYGWIN_REPACK="cygwin-packages-repack-win7-x32"
+    BUILDER_SUBDIR="Program Files/NTLite"
+    BUILDER_BIN="NTLite.exe"
+    BUILD_SYSTEM="libvirt"
+    BUILD_IMAGE="libvirt-img-windows-server-2012-cloudbase"
     ;;
 *)
     error "$OS_TARGET is not supported"
@@ -73,22 +112,39 @@ xp)
 esac
 
 # auto variables
+if [ "$ARCH" = "x86" ]; then
+    ARCH_NR="32"
+elif [ "$ARCH" = "x64" ]; then
+    ARCH_NR="64"
+else
+    error "ARCH $ARCH not supported"
+fi
 SP="_"
 ARCHIVE_LINK="$ARCHIVE_URL$ARCHIVE_PATH"
 PATH_ARCHIVE="$(echo "$ARCHIVE_URL" | awk -F/ '{print $3}')"
-PATH_PREFIX="$HOME/.local/share/wineprefixes/$PKG_ISO$SP$PKG_CYGWIN$SP$ARCH"
+PREFIX_NAME="isoremixer$SP$ARCH$SP$PKG_ISO$SP$PKG_CYGWIN"
+PATH_PREFIX="$HOME/.local/share/wineprefixes/$PREFIX_NAME"
 PATH_C="$PATH_PREFIX/drive_c"
 PATH_CYGWIN="$PATH_C/cygwin-setup"
-PATH_BUILDER="$PATH_C/$SUBDIR_BUILDER"
+PATH_BUILDER="$PATH_C/$BUILDER_SUBDIR"
 PATH_PRESETS_DES="$PATH_BUILDER/Presets"
 PATH_ISO="$PATH_C/iso"
 PATH_ISO_CYGWIN="$PATH_ISO/cygwin"
+PATH_VIRTIO_ISO="$PATH_C/$PKG_VIRTIO_ISO"
+PATH_PREPARE_ISO="$PATH_C/build-prepare"
+FILE_PREPARE_ISO="$PATH_PREPARE_ISO.iso"
 EXE_CYGWIN_SETUP="$PATH_CYGWIN/cygwin-setup.exe"
-EXE_BUILDER="$PATH_BUILDER/$BIN_BUILDER"
-FASTPKG_PKGS="$PKG_CYGWIN $PKG_BUILDER $PKG_ISO $PKG_DRV_A $PKG_DRV_B"
+EXE_BUILDER="$PATH_BUILDER/$BUILDER_BIN"
+FASTPKG_PKGS="$PKG_CYGWIN $PKG_BUILDER $PKG_VIRTIO_ISO $PKG_DRV_B $PKG_WINFSP $PKG_ISO"
 PATH_PRESETS_USER="$HOME/.isoremixer/presets"
 PATH_PRESETS_SYSTEM="/usr/local/share/isoremixer/presets"
 NAME_CYGWIN_BAT="setup_cygwin.bat"
+EXTRA_DISK="/var/lib/libvirt/images/""$PREFIX_NAME""_2.raw"
+
+# verify wine version
+if ! dpkg -l | grep -qL "wine$ARCH_NR"; then
+    error "wine$ARCH_NR not installed"
+fi
 
 # init
 mkdir -p "$PATH_PRESETS_USER" || error
@@ -118,97 +174,175 @@ LIST_SCRIPTS=$(find -L "$PATH_SCRIPTS_CYGWIN" -name 'setup_cygwin*' -type f)
 
 ### MAIN ######################################################################
 
+# cleanup
+if echo "$ARGS" | grep -qF e; then
+    sudo vmh erase "$PREFIX_NAME"
+    sudo rm -f "$EXTRA_DISK"
+    rm -rf "$PATH_PREFIX"
+    exit 0
+fi
+
 # verify base requirements
 require_app fastpkg
 require_app wine
 require_app winetricks
 require_app 7z
 
-# download packges
-info "Download fastpkg packages"
-sudo fastpkg -q update || error
-for i in $FASTPKG_PKGS; do
-    sudo fastpkg -p "$i" download || error
-done
+# use repack
+if echo "$ARGS" | grep -qF r; then
+    FASTPKG_PKGS="$CYGWIN_REPACK $FASTPKG_PKGS"
+fi
+
+# download packages
+if ! echo "$ARGS" | grep -qF s; then
+    info "Download fastpkg packages"
+    sudo fastpkg -q update || error
+    for i in $FASTPKG_PKGS; do
+        sudo fastpkg -p "$i" download || error
+    done
+    # install build image
+    if [ -n "$BUILD_IMAGE" ]; then
+        sudo fastpkg -p "$BUILD_IMAGE" install || error
+    fi
+fi
 
 # more variables
-EXE_BUILDER_SETUP="$(get_file $PKG_BUILDER)"
-LOG_WINETRICKS="$PATH_PREFIX/winetricks_setup.log"
-LOG_7Z="$PATH_PREFIX/7z.log"
-LOG_CYGWIN_DL="$PATH_PREFIX/$(basename "$EXE_CYGWIN_SETUP").log"
-LOG_BUILDER_SETUP="$PATH_PREFIX/$(basename "$EXE_BUILDER_SETUP").log"
-LOG_BUILDER="$PATH_PREFIX/$(basename "$EXE_BUILDER").log"
-LOG_COPY="$PATH_PREFIX/copy.log"
+EXE_BUILDER_SETUP="$(get_file $PKG_BUILDER)" || exit 1
+LOGS="$PATH_PREFIX/logs"
+LOG_WINETRICKS="$LOGS/winetricks.log"
+LOG_7Z="$LOGS/7z.log"
+LOG_CYGWIN_DL="$LOGS/$(basename "$EXE_CYGWIN_SETUP").log"
+LOG_BUILDER_SETUP="$LOGS/$(basename "$EXE_BUILDER_SETUP").log"
+LOG_BUILDER="$LOGS/$(basename "$EXE_BUILDER").log"
+LOG_COPY="$LOGS/copy.log"
+LOG_GENISO="$LOGS/genisoimage.log"
+
+WINE_VER=$(wine --version | awk '{print $1}' | awk -F- '{print $2}')
 
 # set wine prefix variables
-if [ "$ARCH" = "x86" ]; then
-    export WINEARCH=win32
-elif [ "$ARCH" = "x64" ]; then
-    export WINEARCH=win64
-else
-    error "ARCH not supported"
-fi
+info "Wine environment"
+echo "export WINEARCH=win$ARCH_NR"
+export WINEARCH="win$ARCH_NR"
+echo "export WINEPREFIX=$PATH_PREFIX"
 export WINEPREFIX="$PATH_PREFIX"
 
 # download cygwin
 case $OS_TARGET in
-xp)
-    if [ "$ARGS" = "--only-cygwin" ]; then
+xp* | 7*)
+    if echo "$ARGS" | grep -qF c; then
+        if ! [ -d "$PATH_PREFIX" ]; then
+            error "wineprefix not found, run without 'c' first"
+        fi
+        # debug
+        cd "$PATH_CYGWIN" || error
+        #wine cmd
         wine "$EXE_CYGWIN_SETUP" \
+            --download \
             --arch="$ARCH" \
             --site="$ARCHIVE_LINK" \
             --no-verify \
-            --local-package-dir="C:\cygwin-setup" || error
+            --only-site \
+            --local-package-dir="C:\cygwin-setup" \
+            --packages="$CYGWIN_PKGS" 1>"$LOG_CYGWIN_DL" ||
+            error "check $LOG_CYGWIN_DL"
         exit 0
     elif [ -d "$PATH_CYGWIN" ]; then
         info "Cygwin already downloaded"
         rm -f "$LOG_COPY"
     else
+        # download cygwin packages
+        if ! echo "$ARGS" | grep -qF r; then
+            info "Verify Wine version"
+            case $WINE_VER in
+            8.* | 7.* | 6.*)
+                :
+                ;;
+            5.* | 4.* | 3.* | 2.* | 1.*)
+                if ! [ "$OS_TARGET" = "xp" ]; then
+                    echo "Wine is too old for this version of Cygwin-setup"
+                    echo "You can only build XP images with Wine $WINE_VER"
+                    echo "Use a repack instead by adding the 'r' flag"
+                    error "Wine is too old"
+                fi
+                ;;
+            *)
+                error "wine '$WINE_VER' is not supported, update this script"
+                ;;
+            esac
+        fi
+
         # create prefix
-        info "Create Wine prefix"
-        winetricks settings "$WINE_WINVER" 1>/dev/null 2>/dev/null || error
+        info "Create Wine prefix for '$WINE_WINVER'"
+        winetricks settings "$WINE_WINVER" 1>/dev/null 2>&1 ||
+            error winetricks
 
         info "Download Cygwin packages"
-        FILE_CYWGIN_SRC="$(get_file $PKG_CYGWIN)" || error
-        mkdir -p "$PATH_CYGWIN"
-        cp -Lv "$FILE_CYWGIN_SRC" "$EXE_CYGWIN_SETUP" >"$LOG_COPY" || error
+        FILE_CYWGIN_SRC="$(get_file $PKG_CYGWIN)" || exit 1
+        mkdir -p "$PATH_CYGWIN" "$LOGS"
+        cp -Lv "$FILE_CYWGIN_SRC" "$EXE_CYGWIN_SETUP" >"$LOG_COPY" ||
+            error "cp $FILE_CYWGIN_SRC"
 
         # start
-        cd "$PATH_CYGWIN" || error
+        cd "$PATH_CYGWIN" || error "cd $PATH_CYGWIN"
 
+        # use repack
+        if echo "$ARGS" | grep -qF r; then
+            7z -aos x "$(get_file "$CYGWIN_REPACK")" -o"$PATH_CYGWIN" \
+                1>"$LOG_7Z" || error
         # download cygwin packages
-        wine "$EXE_CYGWIN_SETUP" \
-            --quiet-mode \
-            --download \
-            --arch="$ARCH" \
-            --site="$ARCHIVE_LINK" \
-            --no-verify \
-            --local-package-dir="C:\cygwin-setup" \
-            --packages="$CYGWIN_PKGS" 1>"$LOG_CYGWIN_DL" || error
+        elif ! echo "$ARGS" | grep -qF r; then
+            # cygwin setup download
+            wine "$EXE_CYGWIN_SETUP" \
+                --quiet-mode \
+                --download \
+                --arch="$ARCH" \
+                --site="$ARCHIVE_LINK" \
+                --no-verify \
+                --only-site \
+                --local-package-dir="C:\cygwin-setup" \
+                --packages="$CYGWIN_PKGS" 1>"$LOG_CYGWIN_DL" ||
+                error "check $LOG_CYGWIN_DL"
+        fi
     fi
+    ;;
+*)
+    error "$OS_TARGET is not supported"
     ;;
 esac
 
 # build iso
 case $OS_TARGET in
-xp)
+xp*)
     if [ -d "$PATH_ISO" ]; then
         info "iso folder already created"
     else
-        info "Install .NET"
-        winetricks -q dotnet20sp2 1>"$LOG_WINETRICKS" 2>&1 || error
-        # todo: wine start wine-mono-5.0.0-x86.msi, instead of dotnet20sp2
+        case $WINE_VER in
+        8.0 | 7.* | 6.* | 5.* | 4.*)
+            info "Install .NET 2.0 SP2 for nlite"
+            winetricks -q dotnet20sp2 1>"$LOG_WINETRICKS" 2>&1 ||
+                error "winetricks dotnet20sp2"
+            # nlite requires tahoma font
+            info "Install tahoma font for nlite"
+            winetricks -q tahoma 1>"$LOG_WINETRICKS" 2>&1 ||
+                error "winetricks tahoma"
+            ;;
+        *)
+            error "wine version '$WINE_VER' not supported, update this script"
+            ;;
+        esac
+
         info "Install $PKG_BUILDER"
-        wine "$EXE_BUILDER_SETUP" "/VERYSILENT" 1>"$LOG_BUILDER_SETUP" || error
+        wine "$EXE_BUILDER_SETUP" "/VERYSILENT" 1>"$LOG_BUILDER_SETUP" 2>&1 ||
+            error "wine $EXE_BUILDER_SETUP"
 
         # extract and skip existing files
         info "Extract ISO"
-        7z -aos x "$(get_file $PKG_ISO)" -o"$PATH_ISO" 1>"$LOG_7Z" || error
+        7z -aos x "$(get_file "$PKG_ISO")" -o"$PATH_ISO" 1>"$LOG_7Z" || error
         info "Extract KVM virtio drivers"
-        7z -aos x "$(get_file $PKG_DRV_A)" -o"$PATH_C/$PKG_DRV_A" \
+        7z -aos x "$(get_file "$PKG_VIRTIO_ISO")" -o"$PATH_VIRTIO_ISO" \
             1>"$LOG_7Z" || error
         info "Extract Intel E1000 drivers"
-        7z -aos x "$(get_file $PKG_DRV_B)" -o"$PATH_C/$PKG_DRV_B" \
+        7z -aos x "$(get_file "$PKG_DRV_B")" -o"$PATH_C/$PKG_DRV_B" \
             1>"$LOG_7Z" || error
     fi
 
@@ -232,19 +366,232 @@ xp)
     done
 
     info "Copy Cygwin exe"
-    cp -Lvf "$EXE_CYGWIN_SETUP" "$PATH_ISO_CYGWIN/" >>"$LOG_COPY" || error
+    cp -Lvf "$EXE_CYGWIN_SETUP" "$PATH_ISO_CYGWIN/" >>"$LOG_COPY" || error cp
 
     info "Copy Cygwin packages to ISO"
     CYGWIN_REPO=$(find -L "$PATH_CYGWIN" -mindepth 1 -maxdepth 1 \
-        -name "*$PATH_ARCHIVE*" -type d) || error
+        -name "*$PATH_ARCHIVE*" -type d) || error "find CYGWIN_REPO"
     LIST_CYGWIN_REPO=$(find -L "$CYGWIN_REPO" -mindepth 1 -maxdepth 1 \
-        -type d) || error
+        -type d) || error "find LIST_CYGWIN_REPO"
     for k in $LIST_CYGWIN_REPO; do
-        cp -LvR "$k" "$PATH_ISO_CYGWIN/" >>"$LOG_COPY" || error
+        cp -LvR "$k" "$PATH_ISO_CYGWIN/" >>"$LOG_COPY" || error cp
     done
 
     info "Start $PKG_BUILDER"
-    wine "$EXE_BUILDER" 1>"$LOG_BUILDER" 2>&1 || error
+    wine "$EXE_BUILDER" 1>"$LOG_BUILDER" 2>&1 || error "wine $EXE_BUILDER"
 
+    ;;
+7*)
+    require_app genisoimage
+    require_app vmh
+    [ -f /usr/sbin/parted ] || error "parted not installed"
+    [ -f /usr/sbin/mkntfs ] || error "mkntfs not installed"
+    [ -f /usr/sbin/losetup ] || error "losetup not installed"
+
+    [ -n "$BUILD_IMAGE" ] || error "BUILD_IMAGE not set"
+
+    if [ -d "$PATH_ISO" ]; then
+        info "skip, already extracted ISO and drivers"
+    else
+        mkdir -p "$PATH_ISO" || error mkdir
+        # extract and skip existing files
+        info "Extract ISO"
+        7z -aos x "$(get_file $PKG_ISO)" -o"$PATH_ISO" 1>"$LOG_7Z" || error 7z
+        info "Extract KVM virtio drivers"
+        7z -aos x "$(get_file $PKG_VIRTIO_ISO)" -o"$PATH_VIRTIO_ISO" \
+            1>"$LOG_7Z" || error 7z
+    fi
+
+    if [ -d "$PATH_PREPARE_ISO" ]; then
+        info "skip, already created Bilder Prepare ISO"
+    else
+        info "Create Builder Prepare ISO"
+        mkdir -p "$PATH_PREPARE_ISO"
+        # copy winfsp installer
+        EXE_PKG_WINFSP="$(get_file "$PKG_WINFSP")" || exit 1
+        EXE_PKG_WINFSP_BASE="$(basename "$EXE_PKG_WINFSP")"
+        cp -L "$EXE_PKG_WINFSP" "$PATH_PREPARE_ISO/" ||
+            error "cp $EXE_PKG_WINFSP"
+        # copy builder installer
+        EXE_BUILDER_SETUP_BASE="$(basename "$EXE_BUILDER_SETUP")"
+        cp -L "$EXE_BUILDER_SETUP" "$PATH_PREPARE_ISO/" ||
+            error "cp $EXE_BUILDER_SETUP"
+        # copy guest additions
+        EXE_VIRTIO_GUEST=$(find -L "$PATH_VIRTIO_ISO" -mindepth 1 -maxdepth 1 \
+            -type f -name '*guest-tools*') || error "find LIST_CYGWIN_REPO"
+        [ -n "$EXE_VIRTIO_GUEST" ] || error "EXE_VIRTIO_GUEST not found"
+        EXE_VIRTIO_GUEST_BASE="$(basename "$EXE_VIRTIO_GUEST")"
+        cp -L "$EXE_VIRTIO_GUEST" "$PATH_PREPARE_ISO/$EXE_VIRTIO_GUEST_BASE" ||
+            error "cp $EXE_VIRTIO_GUEST"
+
+        # add auto install script
+        printf %s"\r\n" \
+            "san policy=OnlineAll" \
+            "select disk 1" \
+            "online disk" \
+            "attributes disk clear readonly" \
+            >"$PATH_PREPARE_ISO/disks.txt" || error "add disks.txt"
+        printf %s"\r\n" \
+            "@echo off" \
+            "rem This script installs libvirt VirtIO drivers and VirtIO-FS" \
+            "rem https://www.debugpoint.com/kvm-share-folder-windows-guest/" \
+            "" \
+            "echo Installing $EXE_PKG_WINFSP_BASE" \
+            "msiexec /i $EXE_PKG_WINFSP_BASE /qn INSTALLLEVEL=1000" \
+            "echo Installing $EXE_BUILDER_SETUP_BASE" \
+            "$EXE_BUILDER_SETUP_BASE /VERYSILENT" \
+            "echo Installing $EXE_VIRTIO_GUEST_BASE" \
+            "$EXE_VIRTIO_GUEST_BASE -s" \
+            "sc config \"VirtIO-FS Service\" start=auto >nul 2>&1" \
+            "sc config VirtioFsSvc start=delayed-auto >nul 2>&1" \
+            "sc start \"VirtIO-FS Service\" >nul 2>&1" \
+            "sc start VirtioFsSvc >nul 2>&1" \
+            "reg add <KEY_NAME> /v <VALUE_NAME> /t <TYPE> /d <DATA>" \
+            "" \
+            "echo Done! press a key to rebooting now" \
+            "echo Sometimes you have to reboot twice for WinFsp to work" \
+            "pause >nul" \
+            "" \
+            "echo Always mount disks" \
+            "diskpart /s disks.txt" \
+            "" \
+            "shutdown -g -f -t 0 >nul 2>&1" \
+            "if errorlevel 1 shutdown -r -f -t 0 >nul 2>&1" \
+            >"$PATH_PREPARE_ISO/auto-install.bat" || error "add auto-install"
+        # compile ISO
+        genisoimage \
+            -iso-level 4 \
+            -o "$FILE_PREPARE_ISO" "$PATH_PREPARE_ISO" \
+            1>"$LOG_GENISO" 2>&1 ||
+            error "genisoimage -o $FILE_PREPARE_ISO $PATH_PREPARE_ISO"
+    fi
+
+    # skipt if already exists
+    if sudo virsh list --all | grep -qF "$PREFIX_NAME"; then
+        info "skip, build VM already installed"
+    else
+        info "Install build VM"
+        sudo vmh import-chain "$PREFIX_NAME" "$BUILD_IMAGE"
+        # link shared folder to wine
+        sudo virt-xml "$PREFIX_NAME" --edit --filesystem source.dir="$PATH_C"
+        # mount custom iso
+        sudo virsh change-media "$PREFIX_NAME" sda "$FILE_PREPARE_ISO" \
+            1>/dev/null || error "virsh change-media"
+    fi
+
+    # create and attach extra disk
+    if [ -f "$EXTRA_DISK" ]; then
+        info "skip, extra disk already created"
+    else
+        info "Create extra disk"
+        echo "Disk is: $MOUNTED_DISK"
+        sudo qemu-img create -f raw "$EXTRA_DISK" 20G ||
+            error "qemu-img create"
+        sudo parted "$EXTRA_DISK" mklabel gpt || error "parted mklabel"
+        # mount as loop device
+        sudo losetup -f "$EXTRA_DISK" || error "losetup -f"
+        MOUNTED_DISK=$(sudo losetup -a | grep -F "$EXTRA_DISK" |
+            awk -F: '{print $1}')
+        [ -n "$MOUNTED_DISK" ] || error "losetup -a"
+        # create an NTFS partition
+        info "Create NTFS partition"
+        # GPT disk label (you may get asked for confirmation)
+        sudo parted -s "$MOUNTED_DISK" --align optimal unit MiB \
+            mklabel gpt 1>/dev/null ||
+            error "parted mklabel"
+        # Create a single partition for the entire disk
+        sudo parted -s "$MOUNTED_DISK" --align optimal unit MiB \
+            mkpart primary ntfs 1 100% 1>/dev/null || error "parted mkpart"
+        # sudo parted "$MOUNTED_DISK" print
+        # generate device nodes
+        sudo partprobe "$MOUNTED_DISK" || error partprobe
+        sudo mkntfs --fast --force "$MOUNTED_DISK"*1 || error "mkntfs"
+        sudo losetup -d "$MOUNTED_DISK" || error "losetup -d"
+    fi
+
+    # todo: write an external program that automatically mounts all
+    # windows partitions of a disk. and unmount too
+    # mount /dev/loop0p1 /mnt/
+
+    info "Attach extra disk"
+    sudo virsh attach-disk "$PREFIX_NAME" "$EXTRA_DISK" vdb \
+        --config --driver=qemu || error "virsh attach-disk"
+
+    # boot
+    sudo vmh start "$PREFIX_NAME" ||
+        error "vmh start"
+    MSG_BOOT="Please wait while the build VM is booting."
+    notify-send "$MSG_BOOT"
+    echo "$MSG_BOOT"
+    echo "This might take a while depending on the VM."
+    echo "..."
+    sleep 10
+
+    export LIBVIRT_DEFAULT_URI="qemu:///system"
+    virt-viewer "$PREFIX_NAME" --wait &
+    #vmhc "$PREFIX_NAME"
+
+    ERASE_VM=false
+    while true; do
+        echo "Enter 'e' to erase the VM, when you are done building the ISO"
+        echo "Enter 'k' to keep the VM"
+        # shellcheck disable=SC2162
+        read INSTMED </dev/tty
+        case $INSTMED in
+        e)
+            ERASE_VM=true
+            break
+            ;;
+        k)
+            ERASE_VM=false
+            break
+            ;;
+        esac
+    done
+
+    if [ "$ERASE_VM" = true ]; then
+        sudo vmh erase "$PREFIX_NAME" || error "vmh erase"
+    fi
+
+    #sudo vmh purge "$PREFIX_NAME"
+
+    #    virsh -q send-key "$DOM" 0x1c 2>&1
+    #
+    #    info "Generate builder config"
+    #    mkdir -p "$PATH_PRESETS_DES" || error
+    #    NLITE_CFG="$PATH_BUILDER/nlite.ini"
+    #    echo "[General]" >"$NLITE_CFG"
+    #    echo "NoCompatPop" >>"$NLITE_CFG"
+    #    echo "Path1 = C:\iso" >>"$NLITE_CFG"
+    #
+    #    info "Copy preset configs"
+    #    cp -Lv "$PATH_PRESETS_SRC/Last Session.ini" "$PATH_PRESETS_DES/" \
+    #        >>"$LOG_COPY" || error
+    #    cp -Lv "$PATH_PRESETS_SRC/Last Session_u.ini" "$PATH_PRESETS_DES/" \
+    #        >>"$LOG_COPY" || error
+    #
+    #    info "Copy deployment scripts"
+    #    mkdir -p "$PATH_ISO_CYGWIN" || error
+    #    for j in $LIST_SCRIPTS; do
+    #        cp -Lvf "$j" "$PATH_ISO_CYGWIN/" >>"$LOG_COPY" || error
+    #    done
+    #
+    #    info "Copy Cygwin exe"
+    #    cp -Lvf "$EXE_CYGWIN_SETUP" "$PATH_ISO_CYGWIN/" >>"$LOG_COPY" || error
+    #
+    #    info "Copy Cygwin packages to ISO"
+    #    CYGWIN_REPO=$(find -L "$PATH_CYGWIN" -mindepth 1 -maxdepth 1 \
+    #        -name "*$PATH_ARCHIVE*" -type d) || error
+    #    LIST_CYGWIN_REPO=$(find -L "$CYGWIN_REPO" -mindepth 1 -maxdepth 1 \
+    #        -type d) || error
+    #    for k in $LIST_CYGWIN_REPO; do
+    #        cp -LvR "$k" "$PATH_ISO_CYGWIN/" >>"$LOG_COPY" || error
+    #    done
+    #
+    #    info "Start $PKG_BUILDER"
+    #    wine "$EXE_BUILDER" 1>"$LOG_BUILDER" 2>&1 || error
+    ;;
+*)
+    error "$OS_TARGET is not supported"
     ;;
 esac
