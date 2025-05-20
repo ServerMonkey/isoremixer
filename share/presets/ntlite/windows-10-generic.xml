@@ -1,0 +1,308 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Preset isAutoSaved="true" xmlns="urn:schemas-nliteos-com:pn.v1">
+	<Date></Date>
+	<AppInfo>
+		<Version>2023.8.9408</Version>
+		<Licensed>No</Licensed>
+		<Protections>Yes</Protections>
+		<Host></Host>
+	</AppInfo>
+	<ImageInfo>
+		<Version mode="offline">Windows 10 Professional 22H2 x64 - 10.0.19045.2604 (en-US)</Version>
+		<GUID></GUID>
+	</ImageInfo>
+	<RemoveComponents AppRemovalMode="DISM"></RemoveComponents>
+	<Compatibility protectHidden="false">
+		<ComponentFeatures>
+			<Feature enabled="no">AppGuard</Feature>
+			<Feature enabled="no">YubiKey</Feature>
+			<Feature enabled="no">Bluetooth</Feature>
+			<Feature enabled="no">USBCamera</Feature>
+			<Feature enabled="no">CapFrameX</Feature>
+			<Feature enabled="yes">Discord</Feature>
+			<Feature enabled="yes">FileSharing</Feature>
+			<Feature enabled="no">Hyper-V</Feature>
+			<Feature enabled="no">iCloud</Feature>
+			<Feature enabled="yes">ManualSetup</Feature>
+			<Feature enabled="yes">OfficeSupport</Feature>
+			<Feature enabled="yes">AppxSupport</Feature>
+			<Feature enabled="no">Netflix</Feature>
+			<Feature enabled="no">NetworkDiscovery</Feature>
+			<Feature enabled="no">NightLight</Feature>
+			<Feature enabled="yes">NvidiaSetup</Feature>
+			<Feature enabled="yes">OOBE</Feature>
+			<Feature enabled="yes">Printing</Feature>
+			<Feature enabled="yes">Recommended-All</Feature>
+			<Feature enabled="no">SamsungSwitch</Feature>
+			<Feature enabled="yes">Scanning</Feature>
+			<Feature enabled="yes">ServicingStack</Feature>
+			<Feature enabled="yes">ShellSearchSupport</Feature>
+			<Feature enabled="no">Spotify</Feature>
+			<Feature enabled="yes">SFC</Feature>
+			<Feature enabled="yes">DefaultFonts</Feature>
+			<Feature enabled="no">SafeMode</Feature>
+			<Feature enabled="yes">TeamViewer</Feature>
+			<Feature enabled="no">Recommended-Tablet</Feature>
+			<Feature enabled="no">USBModem</Feature>
+			<Feature enabled="yes">USB</Feature>
+			<Feature enabled="yes">VideoPlayback</Feature>
+			<Feature enabled="no">VPN</Feature>
+			<Feature enabled="yes">VisualStudio</Feature>
+			<Feature enabled="no">VSS</Feature>
+			<Feature enabled="yes">ActivationKMS</Feature>
+			<Feature enabled="yes">Activation</Feature>
+			<Feature enabled="yes">WindowsStore</Feature>
+			<Feature enabled="yes">WindowsUpdate</Feature>
+			<Feature enabled="yes">WLAN</Feature>
+		</ComponentFeatures>
+		<MachineDrivers>
+			<Machine enabled="yes">HostMachine</Machine>
+			<Machine enabled="no">Hyper-V VM</Machine>
+			<Machine enabled="no">Parallels VM</Machine>
+			<Machine enabled="no">Virtual Box VM</Machine>
+			<Machine enabled="no">VMware VM</Machine>
+		</MachineDrivers>
+	</Compatibility>
+	<Features></Features>
+	<Packages></Packages>
+	<Commands>
+		<PostUpdates>
+			<!--<Command>cmd /c echo Example from [MOUNTDIR]\Windows &amp; pause</Command>-->
+			<!--<Command>dism /image:[MOUNTDIR] /get-intl</Command>-->
+		</PostUpdates>
+	</Commands>
+	<Drivers showHidden="false">
+		<File>E:\drivers\qemufwcfg\w10\amd64\qemufwcfg.inf</File>
+		<File>E:\drivers\qemupciserial\w10\amd64\qemupciserial.inf</File>
+		<File>E:\drivers\Balloon\w10\amd64\balloon.inf</File>
+		<File>E:\drivers\fwcfg\w10\amd64\fwcfg.inf</File>
+		<File>E:\drivers\NetKVM\w10\amd64\netkvm.inf</File>
+		<File>E:\drivers\pvpanic\w10\amd64\pvpanic-pci.inf</File>
+		<File>E:\drivers\pvpanic\w10\amd64\pvpanic.inf</File>
+		<File>E:\drivers\qxldod\w10\amd64\qxldod.inf</File>
+		<File>E:\drivers\viofs\w10\amd64\viofs.inf</File>
+		<File>E:\drivers\viogpudo\w10\amd64\viogpudo.inf</File>
+		<File>E:\drivers\vioinput\w10\amd64\vioinput.inf</File>
+		<File>E:\drivers\sriov\w10\amd64\vioprot.inf</File>
+		<File>E:\drivers\viorng\w10\amd64\viorng.inf</File>
+		<File>E:\drivers\vioscsi\w10\amd64\vioscsi.inf</File>
+		<File>E:\drivers\vioserial\w10\amd64\vioser.inf</File>
+		<File>E:\drivers\viostor\w10\amd64\viostor.inf</File>
+	</Drivers>
+	<Unattended mode="1">
+		<OEMSetupComplete>false</OEMSetupComplete>
+		<AnswerFileLocationPanther>false</AnswerFileLocationPanther>
+		<AnswerFileLocationBoot>false</AnswerFileLocationBoot>
+		<SaveBothArch>false</SaveBothArch>
+		<EditionPrompt>false</EditionPrompt>
+		<settings pass="oobeSystem">
+			<component name="Microsoft-Windows-Deployment">
+				<Reseal>
+					<Mode>OOBE</Mode>
+				</Reseal>
+			</component>
+			<component name="Microsoft-Windows-International-Core">
+				<InputLocale>0409:0000041d</InputLocale>
+				<SystemLocale>en-US</SystemLocale>
+				<UILanguage>en-US</UILanguage>
+				<UILanguageFallback>en-US</UILanguageFallback>
+				<UserLocale>en-US</UserLocale>
+			</component>
+			<component name="Microsoft-Windows-Shell-Setup">
+				<TimeZone>W. Europe Standard Time</TimeZone>
+				<AutoLogon>
+					<Enabled>true</Enabled>
+					<LogonCount>9999999</LogonCount>
+					<Username>Administrator</Username>
+					<Password>
+						<PlainText>false</PlainText>
+						<Value>YQBuAHMAaQBiAGwAZQBQAGEAcwBzAHcAbwByAGQA</Value>
+					</Password>
+				</AutoLogon>
+				<OOBE>
+					<HideEULAPage>true</HideEULAPage>
+					<HideWirelessSetupInOOBE>true</HideWirelessSetupInOOBE>
+					<NetworkLocation>Other</NetworkLocation>
+					<ProtectYourPC>3</ProtectYourPC>
+					<SkipMachineOOBE>true</SkipMachineOOBE>
+					<SkipUserOOBE>true</SkipUserOOBE>
+				</OOBE>
+				<UserAccounts>
+					<AdministratorPassword>
+						<PlainText>false</PlainText>
+						<Value>YQBuAHMAaQBiAGwAZQBBAGQAbQBpAG4AaQBzAHQAcgBhAHQAbwByAFAAYQBzAHMAdwBvAHIAZAA=</Value>
+					</AdministratorPassword>
+					<LocalAccounts>
+						<LocalAccount>
+							<Group>Administrators</Group>
+							<Name>Administrator</Name>
+							<Password>
+								<PlainText>false</PlainText>
+								<Value>YQBuAHMAaQBiAGwAZQBQAGEAcwBzAHcAbwByAGQA</Value>
+							</Password>
+						</LocalAccount>
+					</LocalAccounts>
+				</UserAccounts>
+			</component>
+		</settings>
+		<settings pass="specialize">
+			<component name="Microsoft-Windows-Deployment">
+				<RunSynchronous>
+					<RunSynchronousCommand>
+						<Order>1</Order>
+						<Path>net user Administrator /active:Yes</Path>
+						<WillReboot>Never</WillReboot>
+					</RunSynchronousCommand>
+				</RunSynchronous>
+			</component>
+			<component name="Microsoft-Windows-Security-SPP-UX">
+				<SkipAutoActivation>true</SkipAutoActivation>
+			</component>
+			<component name="Microsoft-Windows-Shell-Setup">
+				<ComputerName>UNASSIGNED</ComputerName>
+				<ProductKey>W269N-WFGWX-YVC9B-4J6C9-T83GX</ProductKey>
+				<RegisteredOrganization>UNASSIGNED</RegisteredOrganization>
+				<RegisteredOwner>UNASSIGNED</RegisteredOwner>
+			</component>
+		</settings>
+		<settings pass="windowsPE">
+			<component name="Microsoft-Windows-International-Core-WinPE">
+				<InputLocale>0409:0000041d</InputLocale>
+				<SystemLocale>en-US</SystemLocale>
+				<UILanguage>en-US</UILanguage>
+				<UILanguageFallback>en-US</UILanguageFallback>
+				<UserLocale>en-US</UserLocale>
+				<SetupUILanguage>
+					<UILanguage>en-US</UILanguage>
+				</SetupUILanguage>
+			</component>
+			<component name="Microsoft-Windows-Setup">
+				<Diagnostics>
+					<OptIn>false</OptIn>
+				</Diagnostics>
+				<DynamicUpdate>
+					<Enable>false</Enable>
+					<WillShowUI>OnError</WillShowUI>
+				</DynamicUpdate>
+				<ImageInstall>
+					<OSImage>
+						<WillShowUI>OnError</WillShowUI>
+						<InstallFrom>
+							<MetaData>
+								<Key>/IMAGE/INDEX</Key>
+								<Value>6</Value>
+							</MetaData>
+						</InstallFrom>
+					</OSImage>
+				</ImageInstall>
+				<UserData>
+					<AcceptEula>true</AcceptEula>
+					<FullName>UNASSIGNED</FullName>
+					<ProductKey>
+						<Key>W269N-WFGWX-YVC9B-4J6C9-T83GX</Key>
+						<WillShowUI>OnError</WillShowUI>
+					</ProductKey>
+				</UserData>
+			</component>
+		</settings>
+	</Unattended>
+	<Tweaks>
+		<Settings>
+			<TweakGroup name="CrashControl">
+				<Tweak name="CrashControl\AutoReboot">0</Tweak>
+			</TweakGroup>
+			<TweakGroup name="Network">
+				<Tweak name="NetworkConnectivityStatusIndicator\NoActiveProbe">1</Tweak>
+				<Tweak name="NewNetworkWindowOff\NewNetworkWindowOff">1</Tweak>
+			</TweakGroup>
+			<TweakGroup name="PowerAndShutdown">
+				<Tweak name="Power\HiberbootEnabled">0</Tweak>
+				<Tweak name="FlyoutMenuSettings\ShowHibernateOption">0</Tweak>
+			</TweakGroup>
+			<TweakGroup name="DesktopTweaks">
+			</TweakGroup>
+			<TweakGroup name="Privacy">
+				<Tweak name="Client\OptInOrOutPreference">0</Tweak>
+				<Tweak name="System\AllowExperimentation">0</Tweak>
+				<Tweak name="DataCollection\AllowTelemetry">4</Tweak>
+				<Tweak name="CloudContent\DisableWindowsConsumerFeatures">1</Tweak>
+				<Tweak name="features\PaidWifi">0</Tweak>
+				<Tweak name="features\WiFiSenseOpen">0</Tweak>
+				<Tweak name="ContentDeliveryManager\SilentInstalledAppsEnabled">0</Tweak>
+				<Tweak name="AppCompat\DisableInventory">1</Tweak>
+				<Tweak name="TrainedDataStore\HarvestContacts">0</Tweak>
+				<Tweak name="InputPersonalization\RestrictImplicitTextCollection">1</Tweak>
+				<Tweak name="InputPersonalization\RestrictImplicitInkCollection">1</Tweak>
+				<Tweak name="Windows Search\AllowCortana">0</Tweak>
+				<Tweak name="Search\HistoryViewEnabled">0</Tweak>
+				<Tweak name="Search\DeviceHistoryEnabled">0</Tweak>
+				<Tweak name="Advanced\ShowCortanaButton">0</Tweak>
+				<Tweak name="Rules\NumberOfSIUFInPeriod">0</Tweak>
+				<Tweak name="AdvertisingInfo\Enabled">0</Tweak>
+				<Tweak name="Privacy\TailoredExperiencesWithDiagnosticDataEnabled">0</Tweak>
+				<Tweak name="ContentDeliveryManager\SystemPaneSuggestionsEnabled">0</Tweak>
+				<Tweak name="Settings\AcceptedPrivacyPolicy">0</Tweak>
+				<Tweak name="ContentDeliveryManager\PreInstalledAppsEnabled">0</Tweak>
+				<Tweak name="Search\BingSearchEnabled">0</Tweak>
+				<Tweak name="TIPC\Enabled">0</Tweak>
+				<Tweak name="ContentDeliveryManager\SubscribedContent-310093Enabled">0</Tweak>
+				<Tweak name="FlipAhead\FPEnabled">0</Tweak>
+			</TweakGroup>
+			<TweakGroup name="System">
+			</TweakGroup>
+			<TweakGroup name="WindowsDefender">
+			</TweakGroup>
+			<TweakGroup name="WindowsUpdate">
+				<Tweak name="AU\AUOptions">2</Tweak>
+			</TweakGroup>
+		</Settings>
+		<Services></Services>
+		<ExtraServices></ExtraServices>
+		<ScheduledTasks></ScheduledTasks>
+	</Tweaks>
+	<ApplyOptions>
+		<ImageTasks>
+			<Task>imageSaveTrim</Task>
+			<Task>imageFormatWim</Task>
+			<Task>imageOptionsCreateIso</Task>
+		</ImageTasks>
+		<AutoIsoFile>E:\windows-10-isoremixer-generic.iso</AutoIsoFile>
+		<AutoIsoLabel>win_10_generic</AutoIsoLabel>
+		<AutoSplitSize>4000</AutoSplitSize>
+		<CleanHotfixedLeftovers>0</CleanHotfixedLeftovers>
+		<OptimizeAppX>false</OptimizeAppX>
+		<ReuseDriverCache>false</ReuseDriverCache>
+	</ApplyOptions>
+	<Execution>
+		<Remove></Remove>
+		<Change></Change>
+		<Add>
+			<Item type="Command">
+				<Path>powercfg</Path>
+				<Params>/hibernate off</Params>
+				<Index>0</Index>
+			</Item>
+			<Item type="Command">
+				<Path>net</Path>
+				<Params>accounts /maxpwage:unlimited</Params>
+				<Index>1</Index>
+			</Item>
+			<Item type="Command">
+				<Path>D:\cygwin\setup_cygwin.bat</Path>
+				<Params></Params>
+				<Index>2</Index>
+			</Item>
+			<Item type="Command">
+				<Path>E:\cygwin\setup_cygwin.bat</Path>
+				<Params></Params>
+				<Index>3</Index>
+			</Item>
+			<Item type="Command">
+				<Path>F:\cygwin\setup_cygwin.bat</Path>
+				<Params></Params>
+				<Index>4</Index>
+			</Item>
+		</Add>
+	</Execution>
+	<Registry></Registry>
+</Preset>

@@ -53,7 +53,8 @@ Version: $VERSION
 Section: admin
 Priority: optional
 Architecture: all
-Depends: fastpkg, wine (>= 5), winetricks, p7zip-full (>= 16)
+Depends: fastpkg, wine (>= 5), winetricks, p7zip-full (>= 16), mount-image
+Recommends: genisoimage
 Maintainer: Bodo Endres <dev@muspekaren.se>
 Description: $DESCRIPTION
 " >"$PATH_TARGET/control"

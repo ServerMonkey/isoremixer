@@ -1,12 +1,13 @@
-isoremixer(1) -- Automatic build Cygwin Windows ISO images
+isoremixer(1) -- Automatic slipstream / remaster Windows ISO images with Cygwin
 =============================================
 
 ## SYNOPSIS
 
-`isoremixer <OS>`
+`isoremixer <OS> <OPTION_FLAG>`
 
 ## DESCRIPTION
 
+Automatic slipstream / remaster Windows ISO images with Cygwin and NTLite.
 Automatically download and build a custom ISO image by combining Cygwin, wine,
 winetricks and fastpkg. Automatically includes virtualization drivers and
 deployment scripts for Cygwin and SSHD.
@@ -31,22 +32,29 @@ under ~.local/share/wineprefixes/
 
 * `-h`, `--help` :  Displays the help screen
 * `r` :  Use Cygwin fastpkg repacks instead of Cygwin mirror. Use this option
-  when you want to use a specific collection of Cygwing packages. Useful when
-  you are in an offline environment. Also, faster than downloading from a
-  mirror.
+  when you want to use a specific collection of Cygwin packages. Useful when
+  in an offline environment. Also, faster than downloading from a mirror.
 * `s` :  Skip fastpkg downloads. Only use this if you are sure that you have
   all required files in the fastpkg downloads folder.
+* `d` :  Only download files. Then exit.
+* `e` :  Erase extra disk and Wine prefix. Use for cleanup.
+* `x` :  Erase only the extra disk. Use for cleanup but keep the VM.
+* `p` :  Erase everything including VM, extra disk and Wine prefix. Use for
+  cleanup.
 * `c` :  Only start Cygwin-setup. Only for debugging purposes. Then exit.
-* `e` :  Erase everything including VM, disks and Wine prefix. Use for cleanup.
 
 * `<OS>` :
   Select an OS version, Se below for availabe OS:es.
 
 ## OS ARGUMENT
 
-* `xp` : Windows XP (any version) via Nlite
-* `7` : Windows 7 x64 via NTLite and libvirt - UNDER DEVELOPMENT!!!
-* `7-x86` : Windows 7 x86 via NTLite and libvirt - UNDER DEVELOPMENT!!!
+Look in these folders for available presets and scripts:
+
+    ls /usr/local/share/isoremixer/presets/os
+
+Custom user presets and scripts can be put in these folders:
+
+    ls $HOME/.isoremixer/presets/os
 
 ## EXAMPLES
 
@@ -54,21 +62,34 @@ Build a Windows XP ISO image:
 
     $ isoremixer xp
 
-## CUSTOM CONFIG FILES
+This will search for the file xp.ini in the folder
+$HOME/.isoremixer/presets/os/. If it does not
+exist, it will search in the folder /usr/local/share/isoremixer/presets/os/.
 
-To use your own preset and/or script files, put your files in these folders.  
-If not, isoremixer will copy recommended/default preset and script files from:
-/usr/local/share/isoremixer/presets/
+When you have successfully created your iso file you can clean up everything,
+meaning removing all build files:
 
-### Presets
+    $ isoremixer xp e
 
-* `xp` : `"~/.isoremixer/presets/nlite/windows-xp-pro/Last Session.ini"`
-  and `"Last Session_u.ini"`
+## CUSTOM PRESETS
 
-### Scripts
+To use ur own preset and/or script files, copy the entire recommended/default
+preset folder to $HOME/.isoremixer.
+Like this:
 
-* `xp` : `"~/.isoremixer/presets/setup_cygwin*"` Each script file must start
-  with `"setup_cygwin..."`
+    $ cp -r /usr/local/share/isoremixer/presets/ $HOME/.isoremixer/presets/
+
+Then you can for example create a custom os preset by copying the default
+template.ini . The template.ini also contains examples and a list of available
+options.
+
+### Cygwin autoinstall/setup scripts
+
+Cygwin autoinstall/setup secripts are in 'presets/'. All script files must
+start with `"setup_cygwin..."`
+
+The file 'setup_cygwin.bat' is the main auto install file. It will call all
+other script files in the same folder.
 
 ### Mirrors
 

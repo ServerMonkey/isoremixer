@@ -1,0 +1,77 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<GeneralOptions xmlns="urn:schemas-nliteos-com:pn.v1">
+	<TempDir volume="\\?\Volume{b2c15323-8652-4dfe-998c-afbf711678e6}\">E:\NTLite\Temp</TempDir>
+	<CustomScratch>true</CustomScratch>
+	<ScratchDir volume="\\?\Volume{b2c15323-8652-4dfe-998c-afbf711678e6}\">E:\NTLite\Scratch</ScratchDir>
+	<UpdatesDir volume="\\?\Volume{b2c15323-8652-4dfe-998c-afbf711678e6}\">E:\NTLite\Cache-Updates</UpdatesDir>
+	<ImageEditDir volume="\\?\Volume{b2c15323-8652-4dfe-998c-afbf711678e6}\">E:\NTLite\Cache-Images</ImageEditDir>
+	<CustomExtractsCache>true</CustomExtractsCache>
+	<ExtractCacheDir>[UPDATECACHE]-Extracted</ExtractCacheDir>
+	<ExtractCacheMode>1</ExtractCacheMode>
+	<WindowPosition>Maximized</WindowPosition>
+	<LastUpdateCheck>0</LastUpdateCheck>
+	<AutoUpdate>true</AutoUpdate>
+	<BackupLogPreset>true</BackupLogPreset>
+	<CheckUpdate>true</CheckUpdate>
+	<DelNTLiteLangDir>false</DelNTLiteLangDir>
+	<DisableDefender>false</DisableDefender>
+	<DisableProtections>false</DisableProtections>
+	<DisableSetupCompleteCleanup>false</DisableSetupCompleteCleanup>
+	<ForceDismExe>false</ForceDismExe>
+	<ForceUnsignedDrivers>true</ForceUnsignedDrivers>
+	<ForceWimLib>false</ForceWimLib>
+	<LoadLastSession>true</LoadLastSession>
+	<MaxDownloads>3</MaxDownloads>
+	<MultiInstance>false</MultiInstance>
+	<ProxyAddress></ProxyAddress>
+	<ProxyMode>4</ProxyMode>
+	<ProxyUser></ProxyUser>
+	<ShowExtraImageInfo>true</ShowExtraImageInfo>
+	<ShowInfoBar>true</ShowInfoBar>
+	<SkipAutoLang>false</SkipAutoLang>
+	<SkipNonStdWimInISO>true</SkipNonStdWimInISO>
+	<SkipPromptCompleted>true</SkipPromptCompleted>
+	<SkipPromptHostRefreshContinue>false</SkipPromptHostRefreshContinue>
+	<SkipPromptInstance>false</SkipPromptInstance>
+	<SkipProUpgrade>true</SkipProUpgrade>
+	<SkipWarningCancelled>false</SkipWarningCancelled>
+	<SkipWarningDefender>false</SkipWarningDefender>
+	<SkipWarningDirectWim>false</SkipWarningDirectWim>
+	<SkipWarningDiskWipe>false</SkipWarningDiskWipe>
+	<SkipWarningEsd>false</SkipWarningEsd>
+	<SkipWarningExploreMount>false</SkipWarningExploreMount>
+	<SkipWarningHiveLoad>false</SkipWarningHiveLoad>
+	<SkipWarningLive>false</SkipWarningLive>
+	<SkipWarningLiveLoad>false</SkipWarningLiveLoad>
+	<SkipWarningNewEdit>false</SkipWarningNewEdit>
+	<SkipWarningNewOsVer>false</SkipWarningNewOsVer>
+	<SkipWarningRemovals>false</SkipWarningRemovals>
+	<SkipWarningSecureDomainJoin>false</SkipWarningSecureDomainJoin>
+	<SkipWarningStart>true</SkipWarningStart>
+	<SplitImageSize>4000</SplitImageSize>
+	<VerifyImageFiles>true</VerifyImageFiles>
+	<VisualAccent>-1</VisualAccent>
+	<VisualStyle>0</VisualStyle>
+	<WimCompression>2</WimCompression>
+	<LockComponents></LockComponents>
+	<RecentPaths>
+		<AddInstaller></AddInstaller>
+		<AddUpdate></AddUpdate>
+		<AddRegistry></AddRegistry>
+		<SaveISO>E:\</SaveISO>
+		<AddImage>E:\iso</AddImage>
+		<SaveImage></SaveImage>
+		<ExportPreset></ExportPreset>
+		<ImportPreset></ImportPreset>
+		<AddDriver>D:\</AddDriver>
+		<ExportDriver></ExportDriver>
+		<ImportDriver></ImportDriver>
+		<ExportHwlist></ExportHwlist>
+		<ImportHwlist></ImportHwlist>
+	</RecentPaths>
+	<Images>
+		<Image expanded="true">E:\iso\sources\install.wim</Image>
+		<Image expanded="true">E:\iso\sources\boot.wim</Image>
+	</Images>
+	<ImageEdits></ImageEdits>
+</GeneralOptions>

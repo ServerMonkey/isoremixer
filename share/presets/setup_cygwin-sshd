@@ -3,30 +3,55 @@
 # based on: https://cygwin.com/pipermail/cygwin/2006-June/147909.html
 # https://web.archive.org/web/20060603194000/http://pigtail.net/LRP/printsrv/cygwin-sshd.html
 
+error() {
+    echo "ERROR: $1" >&2
+    exit 1
+}
+
 echo "# Go to cygwin root"
-cd / || exit 1
+cd / || error "cd /"
 echo "Current dir: $(pwd)"
 
 echo "# Add cygwin to environment PATH"
 REG_ENV="\HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Session Manager\Environment"
-regtool set "$REG_ENV\Path" "%SystemRoot%\system32;%SystemRoot%;%SystemRoot%\System32\Wbem;C:\cygwin\bin" || exit 1
+CURRENT_PATH=$(regtool get "$REG_ENV\Path") || error "get PATH from registry"
+
+if echo "$CURRENT_PATH" | grep -Lq "cygwin\bin"; then
+    echo "Cygwin already in PATH"
+else
+    echo "Cygwin not in PATH, adding"
+    regtool set "$REG_ENV\Path" "$CURRENT_PATH;C:\cygwin\bin" ||
+        error "set PATH in registry"
+fi
 
 echo "# Use UNIX-like permission structure"
 # info: https://web.archive.org/web/20060702075256/http://pigtail.net/LRP/printsrv/ntsec.html
-regtool set "$REG_ENV\CYGWIN" "ntsec" || exit 1
+regtool set "$REG_ENV\CYGWIN" "ntsec" || error "set CYGWIN in registry"
 
 echo "# Import Windows users to cygwin"
-mkpasswd --local >/etc/passwd || exit 1
-mkgroup --local >/etc/group || exit 1
+mkpasswd --local >/etc/passwd || error "mkpasswd"
+mkgroup --local >/etc/group || error "mkgroup"
 
 echo "# Configure and enable SSHD"
+# Win XP
 cygrunsrv --stop sshd 2>/dev/null
 cygrunsrv --remove sshd 2>/dev/null
-ssh-host-config -y || exit 1
-cygrunsrv --start sshd || exit 1
+# Win 7
+cygrunsrv --stop cygsshd 2>/dev/null
+cygrunsrv --remove cygsshd 2>/dev/null
+# auto enable sshd
+ssh-host-config -y || error "ssh-host-config"
+# just in case, start anyway
+cygrunsrv --start sshd 2>/dev/null
+cygrunsrv --start cygsshd 2>/dev/null
 
-echo "# Open port 22"
-netsh firewall add portopening TCP 22 "TCP Port 22"
+echo "# Open port 22 in firewall"
+if netsh advfirewall >/dev/null 2>&1; then
+    netsh advfirewall firewall add rule name="TCP Port 22" \
+        dir=in action=allow protocol=TCP localport=22
+else
+    netsh firewall add portopening TCP 22 "TCP Port 22"
+fi
 
 echo "# Clean up logs"
 echo "" >/var/log/lastlog
