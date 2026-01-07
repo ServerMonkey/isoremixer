@@ -269,20 +269,10 @@
 				<Params>accounts /maxpwage:unlimited</Params>
 				<Index>1</Index>
 			</Item>
-			<Item type="Command">
-				<Path>D:\cygwin\setup_cygwin.bat</Path>
+			<Item type="File">
+				<Path>E:\cygwin-autoinstall.exe</Path>
 				<Params></Params>
 				<Index>2</Index>
-			</Item>
-			<Item type="Command">
-				<Path>E:\cygwin\setup_cygwin.bat</Path>
-				<Params></Params>
-				<Index>3</Index>
-			</Item>
-			<Item type="Command">
-				<Path>F:\cygwin\setup_cygwin.bat</Path>
-				<Params></Params>
-				<Index>4</Index>
 			</Item>
 		</Add>
 	</Execution>

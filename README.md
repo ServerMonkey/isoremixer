@@ -36,7 +36,7 @@ under ~.local/share/wineprefixes/
   in an offline environment. Also, faster than downloading from a mirror.
 * `s` :  Skip fastpkg downloads. Only use this if you are sure that you have
   all required files in the fastpkg downloads folder.
-* `d` :  Only download files. Then exit.
+* `d` :  Only download Cygwin package files. Skip build. Then exit.
 * `e` :  Erase extra disk and Wine prefix. Use for cleanup.
 * `x` :  Erase only the extra disk. Use for cleanup but keep the VM.
 * `p` :  Erase everything including VM, extra disk and Wine prefix. Use for
